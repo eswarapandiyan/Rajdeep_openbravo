@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openbravo/app_route.dart';
-import 'package:openbravo/dashboard.dart';
+import 'package:openbravo/app_config/app_route.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

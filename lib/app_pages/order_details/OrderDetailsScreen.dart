@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openbravo/app_pages/order_details/widgets/order_details.dart';
 
 class OrderDetailsTable extends StatefulWidget {
   final List<dynamic> orders;
@@ -13,6 +14,7 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
   List<dynamic> _filteredOrders = [];
   String? _selectedColumn;
   String? _selectedCategory;
+  OrderDetails orderDetailsWid = OrderDetails();
 
   final List<String> _columns = [
     'All',
@@ -85,6 +87,9 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -102,7 +107,8 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
         children: [
           // Dropdowns
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.symmetric(
+                vertical: screenHeight * 0.01, horizontal: screenWidth * 0.04),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -110,10 +116,10 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                   'Filter by :',
                   style: TextStyle(
                       color: Color.fromARGB(255, 1, 50, 174),
-                      fontSize: 16,
+                      fontSize: screenWidth * 0.045,
                       fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: screenHeight * 0.02),
                 Row(
                   children: [
                     Expanded(
@@ -123,7 +129,7 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                             .map((column) => DropdownMenuItem(
                                   value: column,
                                   child: Text(column,
-                                      style: TextStyle(fontSize: 10)),
+                                      style: TextStyle(fontSize: 11)),
                                 ))
                             .toList(),
                         onChanged: (value) {
@@ -134,9 +140,6 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                         },
                         decoration: const InputDecoration(
                           labelText: 'Select Type',
-                          fillColor: Color.fromARGB(255, 1, 50, 174),
-                          labelStyle: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -153,7 +156,7 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                                           value: category,
                                           child: Text(
                                             category,
-                                            style: TextStyle(fontSize: 10),
+                                            style: TextStyle(fontSize: 11),
                                           ),
                                         ))
                                     .toList()
@@ -168,10 +171,7 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                                   }
                                 : null,
                         decoration: const InputDecoration(
-                          fillColor: Color.fromARGB(255, 1, 50, 174),
                           labelText: 'Select Category',
-                          labelStyle: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -181,8 +181,8 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
               ],
             ),
           ),
-          SizedBox(height: 10),
-          _buildHeaderRow(),
+          SizedBox(height: screenHeight * 0.04),
+          orderDetailsWid.buildHeaderRow(screenWidth),
           const Divider(height: 1),
           Expanded(
             child: Column(
@@ -196,36 +196,11 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
                             final order = _getPaginatedOrders()[index];
                             final sino =
                                 (_currentPage - 1) * _itemsPerPage + index + 1;
-                            return _buildOrderRow(sino, order);
+                            return _buildOrderRow(sino, order, screenWidth);
                           },
                         ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          if (_currentPage > 1) {
-                            setState(() {
-                              _currentPage--;
-                            });
-                          }
-                        },
-                        child: Icon(Icons.arrow_circle_left_outlined)),
-                    Text('Page $_currentPage'),
-                    TextButton(
-                      onPressed: () {
-                        if (_currentPage * _itemsPerPage <
-                            _filteredOrders.length) {
-                          setState(() {
-                            _currentPage++;
-                          });
-                        }
-                      },
-                      child: Icon(Icons.arrow_circle_right_outlined),
-                    ),
-                  ],
-                ),
+                _buildPaginationControls(),
               ],
             ),
           ),
@@ -234,54 +209,63 @@ class _OrderDetailsTableState extends State<OrderDetailsTable> {
     );
   }
 
-  Widget _buildHeaderRow() {
-    return Container(
-      color: Colors.blueGrey[50],
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Row(
-        children: [
-          Expanded(flex: 1, child: Text('SI. No.', style: _headerStyle)),
-          Expanded(flex: 2, child: Text('Customer Type', style: _headerStyle)),
-          Expanded(flex: 3, child: Text('Organization', style: _headerStyle)),
-          Expanded(flex: 3, child: Text('Material Value', style: _headerStyle)),
-          Expanded(flex: 2, child: Text('Sales Engineer', style: _headerStyle)),
-        ],
+  Widget _buildOrderRow(int sino, dynamic order, double screenWidth) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              _buildDataCell('$sino', flex: 1),
+              _buildDataCell(order['customertype'] ?? '', flex: 3),
+              _buildDataCell(order['organization'] ?? '', flex: 4),
+              _buildDataCell(order['materialvalue'] ?? '', flex: 3),
+              _buildDataCell(order['salesengineer'] ?? '', flex: 4),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+      ],
+    );
+  }
+
+  Widget _buildDataCell(String text, {required int flex}) {
+    return Expanded(
+      flex: flex,
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 12),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
 
-  Widget _buildOrderRow(int sino, dynamic order) {
-    return Column(
+  Widget _buildPaginationControls() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ListTile(
-          title: Row(children: [
-            Expanded(
-                flex: 1,
-                child: Text('$sino', style: const TextStyle(fontSize: 12))),
-            Expanded(
-                flex: 2,
-                child: Center(
-                    child: Text(order['customertype'] ?? '',
-                        style: const TextStyle(fontSize: 12)))),
-            Expanded(
-                flex: 4,
-                child: Center(
-                  child: Text(order['organization'] ?? '',
-                      style: const TextStyle(fontSize: 12)),
-                )),
-            Expanded(
-                flex: 3,
-                child: Center(
-                    child: Text(order['materialvalue'] ?? '',
-                        style: const TextStyle(fontSize: 12)))),
-            Expanded(
-                flex: 2,
-                child: Center(
-                    child: Text(order['salesengineer'] ?? '',
-                        style: const TextStyle(fontSize: 12)))),
-          ]),
+        TextButton(
+            onPressed: () {
+              if (_currentPage > 1) {
+                setState(() {
+                  _currentPage--;
+                });
+              }
+            },
+            child: Icon(Icons.arrow_circle_left_outlined)),
+        Text('Page $_currentPage'),
+        TextButton(
+          onPressed: () {
+            if (_currentPage * _itemsPerPage < _filteredOrders.length) {
+              setState(() {
+                _currentPage++;
+              });
+            }
+          },
+          child: Icon(Icons.arrow_circle_right_outlined),
         ),
-        const Divider(height: 1),
       ],
     );
   }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openbravo/app_utils/alert_service.dart';
-
-import 'app_service/sales_order_details.dart';
+import 'package:openbravo/app_pages/dashboard/services/dashboard_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,6 +10,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
 //  double screenHeight = 0;
+  DashboardService dashboardService = DashboardService();
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -58,9 +57,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.green,
                     icon: Icons.shopping_cart,
                     onTap: () {
-                      AlertService().successToast('Order details clicked');
+                      // AlertService().successToast('Order details clicked');
                       // AlertService().showLoadingDialog(context);
-                      getSalesOrder(context);
+                      dashboardService.getSalesOrder(context);
 
                       print("Order Details clicked");
                     },
@@ -124,26 +123,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-  }
-
-  getSalesOrder(BuildContext context) async {
-    AlertService().showLoadingDialog(context);
-    SalesOrderDetailsService().getSOrderDetails().then((res) {
-      AlertService().successToast('response success');
-      AlertService().hideLoadingDialog(context);
-      if (res['data'].isNotEmpty) {
-        final List<dynamic> orderDetails = res['data'];
-        Navigator.pushNamed(
-          context,
-          "OrderDetailsPage",
-          arguments: orderDetails,
-        );
-      } else {
-        // Handle empty response scenario
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No order details found')),
-        );
-      }
-    });
   }
 }

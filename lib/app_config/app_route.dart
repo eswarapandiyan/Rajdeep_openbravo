@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:openbravo/LoginScreen.dart';
-import 'package:openbravo/OrderDetailDescription.dart';
-import 'package:openbravo/OrderDetailsScreen.dart';
-import 'package:openbravo/OutstandingPaymentScreen.dart';
-import 'package:openbravo/ProductList.dart';
-import 'package:openbravo/dashboard.dart';
-import 'package:openbravo/splashScreen.dart';
+import 'package:openbravo/app_pages/user_info/LoginScreen.dart';
+import 'package:openbravo/app_pages/order_details/OrderDetailDescription.dart';
+import 'package:openbravo/app_pages/order_details/OrderDetailsScreen.dart';
+import 'package:openbravo/app_pages/outstanding_payment/OutstandingPaymentScreen.dart';
+import 'package:openbravo/app_pages/price_list/price_list.dart';
+import 'package:openbravo/app_pages/dashboard/dashboard.dart';
+import 'package:openbravo/app_pages/splash_screen/splashScreen.dart';
 // import '../app_pages/index_pages.dart';
 
 class AppRoute {
